@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz interactivo - Solvencia, gestión y diagnóstico financiero</title>
+<style>
+:root{
+  --azul:#0057B8;
+  --azul-claro:#EAF3FF;
+  --azul-medio:#8CC4FF;
+  --negro:#111111;
+  --gris:#f4f4f4;
+  --borde:#d8d8d8;
+  --ok:#2e7d32;
+  --error:#b00020;
+  --advertencia:#fff4d6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--gris);font-family:Arial,Helvetica,sans-serif;color:var(--negro)}
+.wrap{max-width:920px;margin:0 auto;background:#fff;border:1px solid #e1e1e1;overflow:hidden}
+.hero{background:var(--negro);padding:28px 30px 24px;border-bottom:14px solid var(--azul);color:#fff}
+.hero .eyebrow{margin:0 0 10px;font-size:13px;letter-spacing:4px;color:var(--azul-medio);font-weight:800;text-transform:uppercase}
+.hero h1{margin:0;font-family:Georgia,'Times New Roman',serif;font-size:44px;line-height:1.04;color:#fff;font-weight:700;letter-spacing:-1px}
+.hero .sub{margin:14px 0 0;font-size:19px;line-height:1.35;color:#fff}
+.intro{padding:24px 30px 8px}
+.intro-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start}
+.intro h2{margin:0 0 8px;font-size:22px;line-height:1.2;font-weight:800}
+.intro p{margin:0;font-size:16px;line-height:1.55;color:#333}
+.instruccion{background:var(--azul);padding:16px;border-radius:12px;color:#fff}
+.instruccion .label{margin:0 0 6px;font-size:12px;letter-spacing:2px;font-weight:800;text-transform:uppercase;color:#fff}
+.instruccion p,.instruccion strong{color:#fff}
+.progress-wrap{padding:12px 30px 0}
+.progress-bg{background:#eee;height:12px;border-radius:20px;overflow:hidden}
+.progress{width:12.5%;height:12px;background:var(--azul);transition:width .25s ease}
+.contador{margin:8px 0 0;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:#555}
+.quiz-area{padding:18px 30px 30px}
+.card{border:1px solid var(--borde);border-radius:18px;overflow:hidden;background:#fff}
+.card-inner{padding:22px;border-top:12px solid var(--azul)}
+.question-head{display:grid;grid-template-columns:58px 1fr;gap:0}
+.numero{width:46px;height:46px;border:2px solid var(--negro);border-radius:50%;text-align:center;line-height:46px;font-size:18px;font-weight:800}
+.meta{margin:0 0 6px;color:#555;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:800}
+.question-title{margin:0;font-size:25px;line-height:1.2;font-weight:800}
+.icon{float:right;margin-left:8px}
+.options{margin-top:18px}
+.option{display:block;width:100%;text-align:left;margin:8px 0;padding:14px 16px;background:#fff;border:1px solid var(--borde);border-radius:12px;font-size:16px;line-height:1.35;cursor:pointer;transition:background .15s,border-color .15s}
+.option:hover{background:var(--azul-claro);border-color:var(--azul)}
+.option:disabled{cursor:default;opacity:.78}
+.feedback{display:none;margin-top:16px;padding:14px;border-radius:10px;font-size:15px;line-height:1.45}
+.feedback.ok{display:block;background:#eaf8ea;border-left:6px solid var(--ok)}
+.feedback.warn{display:block;background:var(--advertencia);border-left:6px solid #d89b00}
+.feedback.bad{display:block;background:#fdeaea;border-left:6px solid var(--error)}
+.action{display:none;margin-top:14px;background:var(--negro);color:#fff;border:none;padding:12px 20px;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer}
+.action.show{display:inline-block}
+.result{background:var(--negro);border-radius:18px;padding:26px;color:#fff}
+.result .eyebrow{margin:0 0 8px;color:var(--azul-medio);font-size:13px;letter-spacing:3px;text-transform:uppercase;font-weight:800}
+.result h2{margin:0 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:1.1;color:#fff;font-weight:700}
+.result p{margin:0;font-size:17px;line-height:1.55;color:#f2f2f2}
+.nextbox{margin-top:18px;padding:16px;background:var(--azul);color:#fff;border-radius:14px}
+.nextbox p,.nextbox strong{color:#fff}
+.reset{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:#fff;color:var(--negro);border:2px solid var(--azul);padding:12px 20px;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer}
+@media(max-width:760px){
+  .intro-grid{grid-template-columns:1fr}
+  .hero h1{font-size:36px}
+  .question-title{font-size:22px}
+  .quiz-area,.intro,.progress-wrap{padding-left:18px;padding-right:18px}
+  .hero{padding-left:18px;padding-right:18px}
+}
+</style>
+</head>
+<body>
+<div id="quizSolvenciaGestion" class="wrap">
+  <div class="hero">
+    <p class="eyebrow">Análisis e Interpretación de los EE.FF. / Semana 07</p>
+    <h1>Quiz interactivo:<br>Solvencia, gestión y diagnóstico</h1>
+    <p class="sub">Relaciona indicadores, identifica riesgos y fortalece tu diagnóstico preliminar para la EA2.</p>
+  </div>
+
+  <div class="intro">
+    <div class="intro-grid">
+      <div>
+        <h2>Responde, recibe retroalimentación y conecta las señales financieras.</h2>
+        <p>Selecciona una alternativa por pregunta. Si te equivocas, recibirás una pista y tendrás una segunda oportunidad antes de continuar.</p>
+      </div>
+      <div class="instruccion">
+        <p class="label">Instrucción</p>
+        <p><strong>Elige</strong> la respuesta que mejor sustente un diagnóstico financiero.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bg"><div id="barraProgreso" class="progress"></div></div>
+    <p id="contadorQuiz" class="contador">Pregunta 1 de 8</p>
+  </div>
+
+  <div class="quiz-area"><div id="quizContent"></div></div>
+</div>
+
+<script>
+const preguntas = [
+  {
+    meta:"Autonomía financiera",
+    icon:"shield",
+    pregunta:"Una empresa presenta baja autonomía financiera y endeudamiento creciente. ¿Qué diagnóstico preliminar es más adecuado?",
+    opciones:[
+      "La empresa tiene mayor independencia frente a terceros.",
+      "La empresa depende cada vez más del financiamiento externo.",
+      "La empresa ha reducido automáticamente su riesgo financiero.",
+      "La empresa no necesita revisar la estructura de su deuda."
+    ],
+    correcta:1,
+    ok:"La baja autonomía junto con un endeudamiento creciente indica mayor dependencia de recursos de terceros y posible aumento del riesgo financiero.",
+    pista:"Relaciona la autonomía con el peso del financiamiento propio frente al externo."
+  },
+  {
+    meta:"Calidad de deuda",
+    icon:"calendar",
+    pregunta:"Dos empresas tienen el mismo nivel de endeudamiento. La Empresa A concentra la deuda en el corto plazo y la Empresa B en el largo plazo. ¿Cuál enfrenta mayor presión inmediata sobre la caja?",
+    opciones:[
+      "La Empresa A.",
+      "La Empresa B.",
+      "Ambas enfrentan exactamente la misma presión.",
+      "No puede saberse porque el plazo no influye."
+    ],
+    correcta:0,
+    ok:"La Empresa A enfrenta mayor presión inmediata porque una mayor proporción de sus obligaciones vence en el corto plazo.",
+    pista:"Observa qué empresa debe pagar antes."
+  },
+  {
+    meta:"Gestión de cobranza",
+    icon:"clock",
+    pregunta:"Las ventas aumentan, pero también crecen los días promedio de cobranza y disminuye la liquidez. ¿Qué señal aparece?",
+    opciones:[
+      "La empresa convierte sus ventas en efectivo con mayor rapidez.",
+      "La empresa podría estar acumulando cuentas por cobrar y tensionando su caja.",
+      "La empresa ha eliminado el riesgo de impago.",
+      "La empresa necesariamente ha mejorado su solvencia."
+    ],
+    correcta:1,
+    ok:"El aumento de ventas no garantiza liquidez si la cobranza se retrasa; puede existir efectivo atrapado en cuentas por cobrar.",
+    pista:"Diferencia entre registrar ventas y recibir efectivo."
+  },
+  {
+    meta:"Rotación de inventarios",
+    icon:"box",
+    pregunta:"¿Qué combinación sugiere que la liquidez depende demasiado de inventarios de lenta rotación?",
+    opciones:[
+      "Liquidez general alta, prueba ácida baja e inventarios crecientes.",
+      "Liquidez general y prueba ácida similares, con inventarios estables.",
+      "Prueba ácida alta y rotación de inventarios rápida.",
+      "Efectivo alto y pasivo corriente bajo."
+    ],
+    correcta:0,
+    ok:"Si la liquidez general es alta, pero la prueba ácida es baja y los inventarios crecen, la capacidad de pago depende de existencias que podrían tardar en venderse.",
+    pista:"Busca una diferencia importante entre liquidez general y prueba ácida."
+  },
+  {
+    meta:"Cobros y pagos",
+    icon:"repeat",
+    pregunta:"La empresa cobra a sus clientes en 75 días y paga a sus proveedores en 30 días. ¿Cuál es el principal efecto financiero?",
+    opciones:[
+      "Recibe efectivo antes de pagar.",
+      "Puede enfrentar un desfase de caja porque paga antes de cobrar.",
+      "El ciclo operativo se vuelve necesariamente más corto.",
+      "La rentabilidad aumenta de forma automática."
+    ],
+    correcta:1,
+    ok:"Pagar antes de cobrar genera un desfase que puede aumentar la necesidad de financiamiento de corto plazo.",
+    pista:"Compara qué ocurre primero: la entrada o la salida de efectivo."
+  },
+  {
+    meta:"Señales cruzadas",
+    icon:"link",
+    pregunta:"¿Qué interpretación es más adecuada para una empresa con rentabilidad alta, pero solvencia baja?",
+    opciones:[
+      "La empresa no presenta ningún riesgo porque es rentable.",
+      "La empresa genera resultados, pero podría sostenerlos con una estructura financiera riesgosa.",
+      "La empresa necesariamente tiene exceso de efectivo.",
+      "La empresa debe dejar de analizar la deuda."
+    ],
+    correcta:1,
+    ok:"La rentabilidad alta puede coexistir con una solvencia débil; es necesario revisar si el crecimiento depende demasiado de deuda.",
+    pista:"No confundas capacidad de generar utilidad con estabilidad financiera de largo plazo."
+  },
+  {
+    meta:"Conclusión sustentada",
+    icon:"document",
+    pregunta:"¿Cuál de las siguientes conclusiones está mejor fundamentada?",
+    opciones:[
+      "La empresa está mal y debe mejorar.",
+      "La empresa presenta riesgo financiero porque sí.",
+      "El endeudamiento aumentó de 55% a 72% y la deuda corriente concentra la mayor parte de las obligaciones, elevando la presión sobre la caja.",
+      "La empresa debería endeudarse menos porque toda deuda es negativa."
+    ],
+    correcta:2,
+    ok:"Una conclusión sólida presenta dato, comparación, interpretación y riesgo de forma verificable.",
+    pista:"Busca la opción que incluya evidencia cuantitativa y una consecuencia financiera clara."
+  },
+  {
+    meta:"Uso responsable de IA",
+    icon:"spark",
+    pregunta:"¿Cuál es el uso más pertinente de una herramienta de IA durante el diagnóstico de la EA2?",
+    opciones:[
+      "Aceptar automáticamente la interpretación sugerida por la IA.",
+      "Usarla para generar escenarios o preguntas de análisis y validar sus respuestas con los cálculos realizados.",
+      "Permitir que reemplace los estados financieros originales.",
+      "Copiar sus conclusiones sin declarar su uso."
+    ],
+    correcta:1,
+    ok:"La IA puede apoyar la exploración y redacción, pero el estudiante debe validar cada interpretación con evidencia financiera y declarar su uso.",
+    pista:"La IA debe apoyar el análisis, no sustituir la verificación del estudiante."
+  }
+];
+
+let actual=0,puntaje=0,intentos=0,respondida=false;
+
+function iconSVG(type){
+  const base='width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"';
+  const icons={
+    shield:`<svg ${base}><path d="M12 3l7 3v5c0 4.8-2.8 8.1-7 10-4.2-1.9-7-5.2-7-10V6z"></path><path d="M9 12l2 2 4-4"></path></svg>`,
+    calendar:`<svg ${base}><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg>`,
+    clock:`<svg ${base}><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>`,
+    box:`<svg ${base}><path d="M4 7l8-4 8 4-8 4z"></path><path d="M4 7v10l8 4 8-4V7"></path><path d="M12 11v10"></path></svg>`,
+    repeat:`<svg ${base}><path d="M17 2l4 4-4 4"></path><path d="M3 11V9a3 3 0 0 1 3-3h15"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a3 3 0 0 1-3 3H3"></path></svg>`,
+    link:`<svg ${base}><path d="M10 13a5 5 0 0 0 7.1 0l1.4-1.4a5 5 0 0 0-7.1-7.1L10.5 5"></path><path d="M14 11a5 5 0 0 0-7.1 0L5.5 12.4a5 5 0 0 0 7.1 7.1l.9-.9"></path></svg>`,
+    document:`<svg ${base}><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v5h5"></path><path d="M9 13h6M9 17h6"></path></svg>`,
+    spark:`<svg ${base}><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"></path><path d="M19 15l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"></path></svg>`
+  };
+  return icons[type]||icons.shield;
+}
+
+function renderPregunta(){
+  respondida=false;
+  intentos=0;
+  const p=preguntas[actual];
+  const num=String(actual+1).padStart(2,"0");
+  document.getElementById("barraProgreso").style.width=((actual+1)/preguntas.length*100)+"%";
+  document.getElementById("contadorQuiz").textContent=`Pregunta ${actual+1} de ${preguntas.length}`;
+  const opciones=p.opciones.map((op,i)=>`<button class="option" type="button" onclick="responder(${i})">${String.fromCharCode(65+i)}. ${op}</button>`).join("");
+  document.getElementById("quizContent").innerHTML=`
+  <div class="card"><div class="card-inner">
+    <div class="question-head">
+      <div><div class="numero">${num}</div></div>
+      <div>${iconSVG(p.icon)}<p class="meta">${p.meta}</p><h3 class="question-title">${p.pregunta}</h3></div>
+    </div>
+    <div class="options">${opciones}</div>
+    <div id="feedback" class="feedback"></div>
+    <button id="btnNext" class="action" type="button" onclick="siguiente()">${actual===preguntas.length-1?"Ver resultado":"Siguiente pregunta"}</button>
+  </div></div>`;
+}
+
+function responder(indice){
+  if(respondida)return;
+  const p=preguntas[actual];
+  const feedback=document.getElementById("feedback");
+  intentos++;
+  if(indice===p.correcta){
+    respondida=true;
+    puntaje++;
+    feedback.className="feedback ok";
+    feedback.innerHTML=`<strong>Respuesta correcta:</strong> ${p.ok}`;
+    bloquearOpciones();
+    document.getElementById("btnNext").classList.add("show");
+  }else if(intentos<2){
+    feedback.className="feedback warn";
+    feedback.innerHTML=`<strong>Inténtalo nuevamente:</strong> ${p.pista}`;
+  }else{
+    respondida=true;
+    feedback.className="feedback bad";
+    feedback.innerHTML=`<strong>Retroalimentación:</strong> ${p.ok}`;
+    bloquearOpciones();
+    document.getElementById("btnNext").classList.add("show");
+  }
+}
+
+function bloquearOpciones(){
+  document.querySelectorAll(".option").forEach(btn=>{
+    btn.disabled=true;
+    btn.style.cursor="default";
+    btn.style.opacity=".75";
+  });
+}
+
+function siguiente(){
+  if(actual<preguntas.length-1){
+    actual++;
+    renderPregunta();
+    mantenerVista();
+  }else{
+    renderResultado();
+    mantenerVista();
+  }
+}
+
+function renderResultado(){
+  document.getElementById("barraProgreso").style.width="100%";
+  document.getElementById("contadorQuiz").textContent="Quiz completado";
+  let mensaje="";
+  if(puntaje>=7) mensaje="Has demostrado un criterio sólido para relacionar solvencia, gestión y diagnóstico financiero.";
+  else if(puntaje>=5) mensaje="Tienes una base adecuada. Revisa las relaciones entre deuda, rotación y riesgo de caja.";
+  else mensaje="Conviene repasar cómo se conectan los indicadores antes de cerrar el diagnóstico preliminar.";
+  document.getElementById("quizContent").innerHTML=`
+  <div class="result">
+    <p class="eyebrow">Resultado</p>
+    <h2>¡Quiz completado!</h2>
+    <p>Puntaje obtenido: <strong>${puntaje} de ${preguntas.length}</strong>. ${mensaje}</p>
+    <div class="nextbox"><p style="margin:0;font-size:16px;line-height:1.5;"><strong>Siguiente paso:</strong> revisa tu avance de portafolio 2 y verifica que cada conclusión incluya dato, comparación, interpretación y riesgo financiero sustentado.</p></div>
+    <button class="reset" type="button" onclick="reiniciarQuiz()">Reiniciar cuestionario</button>
+  </div>`;
+}
+
+function reiniciarQuiz(){
+  actual=0;puntaje=0;intentos=0;respondida=false;
+  renderPregunta();
+  mantenerVista();
+}
+
+function mantenerVista(){
+  const area=document.getElementById("contadorQuiz");
+  if(area)area.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+renderPregunta();
+</script>
+</body>
+</html>
